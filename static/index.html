@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AML Event Injector</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;700;800&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/static/css/style.css">
+</head>
+<body>
+
+<!-- ─── NAVBAR ─────────────────────────────────────────────── -->
+<header id="navbar">
+  <div class="navbar-top">
+    <div class="navbar-brand">
+      <div class="brand-icon">🛡️</div>
+      <div>
+        <div class="brand-title">AML Event Injector</div>
+        <div class="brand-sub">Microsoft Fabric · IQ Eventstream</div>
+      </div>
+    </div>
+    <div class="navbar-status">
+      <div id="health-badge" class="health-badge hidden">
+        <span id="health-dot" class="dot dot-amber animate-blink"></span>
+        <span id="health-text" class="health-text">DEMO MODE</span>
+      </div>
+      <div id="uptime-display" class="uptime hidden"></div>
+    </div>
+  </div>
+
+  <nav class="navbar-tabs">
+    <button class="tab-btn active" data-tab="transaction">⚡ Transaction</button>
+    <button class="tab-btn" data-tab="customer">👤 Customer</button>
+    <button class="tab-btn" data-tab="account">🏦 Account</button>
+    <button class="tab-btn" data-tab="merchant">🏪 Merchant</button>
+    <button class="tab-btn" data-tab="patterns">🎯 AML Patterns <span class="demo-badge">DEMO</span></button>
+    <button class="tab-btn" data-tab="log">📋 Event Log</button>
+  </nav>
+</header>
+
+<!-- ─── MAIN ───────────────────────────────────────────────── -->
+<main>
+
+  <!-- Stats Bar -->
+  <div class="stats-bar">
+    <div class="stat-card" style="--stat-color:#00c8ff">
+      <span class="stat-icon">⚡</span>
+      <div>
+        <div class="stat-value" id="stat-total">0</div>
+        <div class="stat-label">Events Sent</div>
+      </div>
+    </div>
+    <div class="stat-card" style="--stat-color:#00e676">
+      <span class="stat-icon">💸</span>
+      <div>
+        <div class="stat-value" id="stat-transactions">0</div>
+        <div class="stat-label">Transactions</div>
+      </div>
+    </div>
+    <div class="stat-card" style="--stat-color:#ff3d6b">
+      <span class="stat-icon">🎯</span>
+      <div>
+        <div class="stat-value" id="stat-seeds">0</div>
+        <div class="stat-label">AML Seeds</div>
+      </div>
+    </div>
+    <div class="stat-card" style="--stat-color:#b388ff">
+      <span class="stat-icon">👤</span>
+      <div>
+        <div class="stat-value" id="stat-entities">0</div>
+        <div class="stat-label">Entities</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Card -->
+  <div class="main-card">
+
+    <!-- ─── TRANSACTION TAB ─────────────────────────────────── -->
+    <div id="tab-transaction" class="tab-panel animate-fade-up">
+      <div class="panel-header">
+        <div class="panel-title-row">
+          <span class="panel-icon">⚡</span>
+          <h2>Inject Transaction Event</h2>
+          <span class="tag tag-accent">STREAM</span>
+        </div>
+        <p class="panel-desc">Sends a transaction record directly into Azure Event Hubs → Fabric Eventstream → Eventhouse.</p>
+      </div>
+
+      <form id="form-transaction">
+        <div class="form-grid">
+          <div class="field">
+            <label>From Account ID *</label>
+            <input type="text" name="fromAccountId" placeholder="ACC-STRUCT-042">
+            <div class="field-error" data-field="fromAccountId"></div>
+          </div>
+          <div class="field">
+            <label>To Account ID *</label>
+            <input type="text" name="toAccountId" placeholder="ACC-HDFC-107">
+            <div class="field-error" data-field="toAccountId"></div>
+          </div>
+          <div class="field">
+            <label>Amount *</label>
+            <input type="number" name="amount" placeholder="9800" min="1" step="any">
+            <div class="field-error" data-field="amount"></div>
+            <div class="structuring-warn hidden" id="structuring-warn">⚠ Amount in structuring band (₹8,000–₹10,000)</div>
+          </div>
+          <div class="field">
+            <label>Currency</label>
+            <select name="currency">
+              <option>INR</option><option>USD</option><option>EUR</option>
+              <option>GBP</option><option>AED</option><option>SGD</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Channel *</label>
+            <select name="channel">
+              <option value="">— Select —</option>
+              <option>NEFT</option><option>RTGS</option><option>IMPS</option>
+              <option>UPI</option><option>SWIFT</option><option>CASH</option>
+              <option>CHEQUE</option><option>POS</option>
+            </select>
+            <div class="field-error" data-field="channel"></div>
+          </div>
+          <div class="field">
+            <label>Country Code</label>
+            <input type="text" name="country" placeholder="IN" maxlength="2" value="IN" style="text-transform:uppercase">
+          </div>
+          <div class="field">
+            <label>Merchant ID (optional)</label>
+            <input type="text" name="merchantId" placeholder="MERCH-CHITFUND-01">
+          </div>
+          <div class="field">
+            <label>Description (optional)</label>
+            <input type="text" name="description" placeholder="Payment details...">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" id="btn-transaction" style="flex:1">⚡ Send Transaction Event</button>
+          <button type="button" class="btn btn-ghost" onclick="resetForm('transaction')">Reset</button>
+        </div>
+        <div id="result-transaction" class="result-box hidden"></div>
+      </form>
+    </div>
+
+    <!-- ─── CUSTOMER TAB ───────────────────────────────────────── -->
+    <div id="tab-customer" class="tab-panel hidden animate-fade-up">
+      <div class="panel-header">
+        <div class="panel-title-row">
+          <span class="panel-icon">👤</span>
+          <h2>Register Customer Event</h2>
+          <span class="tag tag-green">ENTITY</span>
+        </div>
+        <p class="panel-desc">Add a new Customer entity to the ontology via the event stream.</p>
+      </div>
+
+      <form id="form-customer">
+        <div class="form-grid">
+          <div class="field">
+            <label>Full Name *</label>
+            <input type="text" name="fullName" placeholder="Rajesh Kumar">
+            <div class="field-error" data-field="fullName"></div>
+          </div>
+          <div class="field">
+            <label>PAN Number *</label>
+            <input type="text" name="pan" placeholder="ABCDE1234F" maxlength="10" style="text-transform:uppercase">
+            <div class="field-error" data-field="pan"></div>
+          </div>
+          <div class="field">
+            <label>Date of Birth *</label>
+            <input type="date" name="dob">
+            <div class="field-error" data-field="dob"></div>
+          </div>
+          <div class="field">
+            <label>Mobile Number *</label>
+            <input type="text" name="mobile" placeholder="9876543210" maxlength="10">
+            <div class="field-error" data-field="mobile"></div>
+          </div>
+          <div class="field field-full">
+            <label>Address *</label>
+            <input type="text" name="address" placeholder="123 MG Road, Bangalore, KA 560001">
+            <div class="field-error" data-field="address"></div>
+          </div>
+          <div class="field">
+            <label>Email *</label>
+            <input type="email" name="email" placeholder="rajesh@example.com">
+            <div class="field-error" data-field="email"></div>
+          </div>
+          <div class="field">
+            <label>KYC Risk Score (0–100)</label>
+            <div class="slider-row">
+              <input type="range" name="kycRiskScore" min="0" max="100" value="0" oninput="updateKycDisplay(this.value)">
+              <span id="kyc-score-display" class="kyc-score" style="color:#00e676">0</span>
+            </div>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-green" id="btn-customer" style="flex:1">👤 Register Customer</button>
+          <button type="button" class="btn btn-ghost" onclick="resetForm('customer')">Reset</button>
+        </div>
+        <div id="result-customer" class="result-box hidden"></div>
+      </form>
+    </div>
+
+    <!-- ─── ACCOUNT TAB ────────────────────────────────────────── -->
+    <div id="tab-account" class="tab-panel hidden animate-fade-up">
+      <div class="panel-header">
+        <div class="panel-title-row">
+          <span class="panel-icon">🏦</span>
+          <h2>Register Account Event</h2>
+          <span class="tag tag-amber">ENTITY</span>
+        </div>
+        <p class="panel-desc">Link a bank account to a Customer entity in the ontology.</p>
+      </div>
+
+      <form id="form-account">
+        <div class="form-grid">
+          <div class="field">
+            <label>Customer ID *</label>
+            <input type="text" name="customerId" placeholder="CUST-A1B2C3D4">
+            <div class="field-error" data-field="customerId"></div>
+          </div>
+          <div class="field">
+            <label>Account Type</label>
+            <select name="accountType">
+              <option>SAVINGS</option><option>CURRENT</option><option>NRI</option>
+              <option>SALARY</option><option>FIXED_DEPOSIT</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Current Balance (₹)</label>
+            <input type="number" name="currentBalance" placeholder="50000" min="0" value="0">
+          </div>
+          <div class="field">
+            <label>Currency</label>
+            <select name="currency">
+              <option>INR</option><option>USD</option><option>EUR</option>
+              <option>GBP</option><option>AED</option><option>SGD</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Branch Name *</label>
+            <input type="text" name="branch" placeholder="Koramangala, Bangalore">
+            <div class="field-error" data-field="branch"></div>
+          </div>
+          <div class="field">
+            <label>IFSC Code *</label>
+            <input type="text" name="ifscCode" placeholder="HDFC0001234" maxlength="11" style="text-transform:uppercase">
+            <div class="field-error" data-field="ifscCode"></div>
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-amber" id="btn-account" style="flex:1">🏦 Register Account</button>
+          <button type="button" class="btn btn-ghost" onclick="resetForm('account')">Reset</button>
+        </div>
+        <div id="result-account" class="result-box hidden"></div>
+      </form>
+    </div>
+
+    <!-- ─── MERCHANT TAB ───────────────────────────────────────── -->
+    <div id="tab-merchant" class="tab-panel hidden animate-fade-up">
+      <div class="panel-header">
+        <div class="panel-title-row">
+          <span class="panel-icon">🏪</span>
+          <h2>Register Merchant Event</h2>
+          <span class="tag tag-purple">ENTITY</span>
+        </div>
+        <p class="panel-desc">Add a Merchant entity — including chit funds, high-risk merchants — to the ontology.</p>
+      </div>
+
+      <div class="mcc-quick-pick">
+        <div class="mcc-label">QUICK MCC PICK</div>
+        <div class="mcc-buttons" id="mcc-buttons">
+          <button type="button" class="btn btn-ghost mcc-btn" data-mcc="6011">6011 · ATM / Cash</button>
+          <button type="button" class="btn btn-ghost mcc-btn" data-mcc="6012">6012 · Bank</button>
+          <button type="button" class="btn btn-ghost mcc-btn" data-mcc="5999">5999 · Misc Retail</button>
+          <button type="button" class="btn btn-ghost mcc-btn" data-mcc="7011">7011 · Hotels / Lodging</button>
+          <button type="button" class="btn btn-ghost mcc-btn" data-mcc="9399">9399 · Gov Services</button>
+        </div>
+      </div>
+
+      <form id="form-merchant">
+        <div class="form-grid">
+          <div class="field">
+            <label>Merchant Name *</label>
+            <input type="text" name="name" placeholder="Sri Lakshmi Chit Fund">
+            <div class="field-error" data-field="name"></div>
+          </div>
+          <div class="field">
+            <label>MCC Code *</label>
+            <input type="text" id="mcc-input" name="mcc" placeholder="6011">
+            <div class="field-error" data-field="mcc"></div>
+          </div>
+          <div class="field">
+            <label>Country</label>
+            <input type="text" name="country" placeholder="IN" maxlength="2" value="IN" style="text-transform:uppercase">
+          </div>
+          <div class="field">
+            <label>Risk Category</label>
+            <select name="riskCategory">
+              <option>LOW</option><option>MEDIUM</option><option>HIGH</option><option>CRITICAL</option>
+            </select>
+          </div>
+          <div class="field field-full">
+            <label>GSTIN (optional)</label>
+            <input type="text" name="gstin" placeholder="29ABCDE1234F1Z5" maxlength="15" style="text-transform:uppercase">
+          </div>
+        </div>
+        <div class="form-actions">
+          <button type="submit" class="btn btn-purple" id="btn-merchant" style="flex:1">🏪 Register Merchant</button>
+          <button type="button" class="btn btn-ghost" onclick="resetForm('merchant')">Reset</button>
+        </div>
+        <div id="result-merchant" class="result-box hidden"></div>
+      </form>
+    </div>
+
+    <!-- ─── AML PATTERNS TAB ──────────────────────────────────── -->
+    <div id="tab-patterns" class="tab-panel hidden animate-fade-up">
+      <!-- Rendered by patterns.js -->
+    </div>
+
+    <!-- ─── EVENT LOG TAB ──────────────────────────────────────── -->
+    <div id="tab-log" class="tab-panel hidden animate-fade-up">
+      <!-- Rendered by eventlog.js -->
+    </div>
+
+  </div><!-- /.main-card -->
+
+  <div class="footer-text">AML EVENT INJECTOR · HACK2FUTURE · FABRIC IQ ONTOLOGY · EVENTSTREAM</div>
+
+</main>
+
+<script src="/static/js/app.js"></script>
+<script src="/static/js/forms.js"></script>
+<script src="/static/js/patterns.js"></script>
+<script src="/static/js/eventlog.js"></script>
+</body>
+</html>
