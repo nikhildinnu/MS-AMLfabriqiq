@@ -11,6 +11,7 @@ env/
 
 # Env
 .env
+local.settings.json
 
 # Logs
 *.log
