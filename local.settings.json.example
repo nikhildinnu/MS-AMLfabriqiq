@@ -7,9 +7,9 @@
     "EVENT_HUB_CONNECTION_STRING": "Endpoint=sb://YOUR_NAMESPACE.servicebus.windows.net/;SharedAccessKeyName=RootManageSharedAccessKey;SharedAccessKey=YOUR_KEY",
     "EVENT_HUB_NAME": "transactions-stream",
 
-    "FABRIC_KUSTO_CLUSTER_URI": "https://YOUR_EVENTHOUSE.YOUR_WORKSPACE.kusto.fabric.microsoft.com",
-    "FABRIC_DATABASE": "FraudDetectionDB",
-    "FABRIC_TABLE": "transactions"
+    "FABRIC_KUSTO_CLUSTER_URI": "https://trd-smc60sj0016b9618p3.z1.kusto.fabric.microsoft.com",
+    "FABRIC_DATABASE": "FraudRealtimeDB",
+    "FABRIC_TABLE": "AMLTransactions"
   },
   "Host": {
     "LocalHttpPort": 7071,

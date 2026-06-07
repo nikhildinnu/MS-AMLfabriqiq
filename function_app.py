@@ -316,7 +316,7 @@ async def serve_root(req: func.HttpRequest) -> func.HttpResponse:
 
 
 # ── GET /{filepath} ───────────────────────────────────────────
-@app.route(route="{filepath:path}", methods=["GET"])
+@app.route(route="{*filepath}", methods=["GET"])
 async def serve_static(req: func.HttpRequest) -> func.HttpResponse:
     filepath = req.route_params.get("filepath", "")
 
